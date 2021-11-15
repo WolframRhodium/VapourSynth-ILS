@@ -3,7 +3,7 @@
 CUDA implementation of [Real-time Image Smoothing via Iterative Least Squares](https://dl.acm.org/doi/10.1145/3388887) for VapourSynth.
 
 
-It is a global optimization based edge-preserving smoothing filter, which can avoids haloing and gradient reversal artifacts commonly found in weighted average based methods like bilateral filter and guided filter.
+It is a global optimization based edge-preserving smoothing filter, which can avoid haloing and gradient reversal artifacts commonly found in weighted average based methods like bilateral filter and guided filter.
 
 
 ## Requirements
@@ -70,7 +70,7 @@ leads to higher convergency speed with the risk of resulting in halo artifacts.
 
 - `use_cuda_graph`
 
-    Whether to use [CUDA Graphs] to reduce CPU cost and kernel launch overhead.
+    Whether to use [CUDA Graphs](https://developer.nvidia.com/blog/cuda-graphs/) to reduce CPU cost and kernel launch overhead.
 
     Default: `True`
 
