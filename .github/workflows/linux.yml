@@ -39,9 +39,8 @@ jobs:
       run: cmake -S . -B build
         -D VAPOURSYNTH_INCLUDE_DIRECTORY="`pwd`/vapoursynth/include"
         -D CMAKE_BUILD_TYPE=Release
-        -D CMAKE_CXX_FLAGS_RELEASE="-ffast-math -march=x86-64-v3"
         -D CMAKE_CUDA_FLAGS="--threads 0 --use_fast_math -Wno-deprecated-gpu-targets"
-        -D CMAKE_CUDA_ARCHITECTURES="50;61-real;75-real;86"
+        -D CMAKE_CUDA_ARCHITECTURES="50-virtual"
       env:
         CC: gcc-11
         CXX: g++-11
