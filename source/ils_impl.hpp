@@ -3,6 +3,7 @@
 struct IlsParams {
     int iteration;
     float c, p, eps, gamma, lambda;
+    bool use_welsch;
 };
 
 struct IlsInstance {

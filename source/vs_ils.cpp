@@ -216,6 +216,7 @@ static void VS_CC ILSCreate(
     param.eps = load_param("eps", 0.0001f);
     param.gamma = load_param("gamma", 0.5f * param.p - 1.0f);
     param.c = load_param("c", param.p * powf(param.eps, param.gamma));
+    param.use_welsch = load_param("use_welsch", false);
 
     int device_id = load_param("device_id", 0);
     int num_instances = load_param("num_streams", 2);
@@ -252,6 +253,7 @@ VS_EXTERNAL_API(void) VapourSynthPluginInit(
         "eps:float:opt;"
         "gamma:float:opt;"
         "c:float:opt;"
+        "use_welsch:int:opt;"
         "device_id:int:opt;"
         "num_streams:int:opt;"
         "use_cuda_graph:int:opt;",

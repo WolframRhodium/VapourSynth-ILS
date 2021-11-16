@@ -43,6 +43,7 @@ static void compute_denormin(
 }
 
 
+template <bool use_welsch=false>
 __global__
 static void compute_normin2_pre(
     float * __restrict__ dst, const float * __restrict__ src,
@@ -67,8 +68,13 @@ static void compute_normin2_pre(
     };
 
     for (int i = 0; i < 2; ++i) {
-        u_h[i] = c * u_h[i] - p * u_h[i] * powf(u_h[i] * u_h[i] + eps, gamma);
-        u_v[i] = c * u_v[i] - p * u_v[i] * powf(u_v[i] * u_v[i] + eps, gamma);
+        if constexpr (use_welsch) {
+            u_h[i] = c * u_h[i] - 2 * u_h[i] * expf(-u_h[i] * u_h[i] / (2 * gamma * gamma));
+            u_v[i] = c * u_v[i] - 2 * u_v[i] * expf(-u_v[i] * u_v[i] / (2 * gamma * gamma));
+        } else {
+            u_h[i] = c * u_h[i] - p * u_h[i] * powf(u_h[i] * u_h[i] + eps, gamma);
+            u_v[i] = c * u_v[i] - p * u_v[i] * powf(u_v[i] * u_v[i] + eps, gamma);
+        }
     }
 
     dst[y * stride + x] = (u_h[0] - u_h[1]) + (u_v[0] - u_v[1]);
@@ -289,11 +295,19 @@ void IlsInstance::launch() noexcept {
     checkCufftError(cufftExecR2C(rfft2d_plan, d_img, d_normin1));
 
     for (int i = 0; i < param.iteration; ++i) {
-        compute_normin2_pre<<<grid, block, 0, stream>>>(
-            d_tmp, d_img,
-            width, height, width,
-            param.c, param.p, param.eps, param.gamma
-        );
+        if (param.use_welsch) {
+            compute_normin2_pre<true><<<grid, block, 0, stream>>>(
+                d_tmp, d_img,
+                width, height, width,
+                param.c, param.p, param.eps, param.gamma
+            );
+        } else {
+            compute_normin2_pre<false><<<grid, block, 0, stream>>>(
+                d_tmp, d_img,
+                width, height, width,
+                param.c, param.p, param.eps, param.gamma
+            );
+        }
 
         checkCufftError(cufftExecR2C(rfft2d_plan, d_tmp, d_normin2));
 

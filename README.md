@@ -18,8 +18,10 @@ It is a global optimization based edge-preserving smoothing filter, which can av
 ## Parameters
 
 ```python3
-ils.ILS(clip clip[, float lambda=0.5, int iteration=4, float p=0.8, float eps=0.0001, float gamma=None, float c=None, int device_id=0, int num_streams=2, bool use_cuda_graph=True])
+ils.ILS(clip clip[, float lambda=0.5, int iteration=4, float p=0.8, float eps=0.0001, float gamma=None, float c=None, bool use_welsch=False, int device_id=0, int num_streams=2, bool use_cuda_graph=True])
 ```
+
+In short, use `use_welsh=True` with `lambda`, `iterations`, `gamma` for compression artifacts removal tasks or `use_welsch=False` with `lambda`, `iterations`, `p` for detail manipulation tasks.
 
 - `clip`
 
@@ -54,6 +56,20 @@ leads to higher convergency speed with the risk of resulting in halo artifacts.
 - `gamma`, `c`
 
     Computed automatically.
+
+    Default:
+
+    - `gamma`: 0.5 * p - 1
+
+    - `c`: p * (eps ** gamma)
+
+- `use_welsch`:
+
+    Whether to use the Welsch penalty function. If not, the Charbonnier penalty is used instead.
+
+    The Welsch penalty is suitable for clip-art compression artifacts removal while the Charbonnier penalty is suitable for tone and detail manipulation.
+
+    Default: `False`
 
 
 - `device_id`
