@@ -1,4 +1,5 @@
 #include <atomic>
+#include <cmath>
 #include <cstdint>
 #include <memory>
 #include <mutex>
@@ -238,7 +239,8 @@ VS_EXTERNAL_API(void) VapourSynthPluginInit(
 ) {
 
     configFunc(
-        "com.amusementclub.ils", "ils", "ils",
+        "com.wolframrhodium.ils", "ils",
+        "CUDA implementation of Real-time Image Smoothing via Iterative Least Squares",
         VAPOURSYNTH_API_VERSION, 1, plugin
     );
 
