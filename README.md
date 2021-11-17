@@ -21,7 +21,7 @@ It is a global optimization based edge-preserving smoothing filter, which can av
 ils.ILS(clip clip[, float lambda=0.5, int iteration=4, float p=0.8, float eps=0.0001, float gamma=None, float c=None, bool use_welsch=False, int device_id=0, int num_streams=2, bool use_cuda_graph=True])
 ```
 
-In short, use `use_welsh=True` with `lambda`, `iterations`, `gamma` for compression artifacts removal tasks or `use_welsch=False` with `lambda`, `iterations`, `p` for detail manipulation tasks.
+In short, use `use_welsch=True` with `lambda`, `iterations`, `gamma` for compression artifacts removal tasks or `use_welsch=False` with `lambda`, `iterations`, `p` for detail manipulation tasks.
 
 - `clip`
 
