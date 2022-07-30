@@ -1,10 +1,19 @@
 name: Build (Windows)
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    paths:
+      - 'source/*'
+      - '.github/workflows/windows.yml'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'which tag to upload to'
+        default: ''
 
 jobs:
   build-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
 
     defaults:
       run:
@@ -19,10 +28,13 @@ jobs:
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
 
+    - name: Setup Ninja
+      run: pip install ninja
+
     - name: Setup CUDA
       run: |
-        curl -s -o cuda_installer.exe -L https://developer.download.nvidia.com/compute/cuda/11.5.0/network_installers/cuda_11.5.0_win10_network.exe
-        cuda_installer.exe -s nvcc_11.5 cudart_11.5 cufft_dev_11.5 visual_studio_integration_11.5
+        curl -s -o cuda_installer.exe -L https://developer.download.nvidia.com/compute/cuda/11.7.0/network_installers/cuda_11.7.0_windows_network.exe
+        cuda_installer.exe -s nvcc_11.7 cudart_11.7 cufft_11.7 cufft_dev_11.7
 
     - name: Download VapourSynth headers
       run: |
@@ -31,23 +43,53 @@ jobs:
         mv vapoursynth-*/ vapoursynth/
 
     - name: Configure
-      run: cmake -S . -B build -G "Visual Studio 16 2019" -A x64
+      run: cmake -S . -B build -G Ninja
         -D VAPOURSYNTH_INCLUDE_DIRECTORY="%cd%\vapoursynth\include"
         -D CMAKE_CUDA_FLAGS="--threads 0 --use_fast_math --resource-usage -Wno-deprecated-gpu-targets"
-        -D CMAKE_CUDA_ARCHITECTURES="50-virtual"
+        -D CMAKE_CUDA_ARCHITECTURES="50;61-real;75-real;86"
       env:
-        CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5
-        CUDA_PATH_V11_5: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5
+        CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7
+        CUDA_PATH_V11_7: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7
 
     - name: Build
-      run: cmake --build build --config Release --parallel %NUMBER_OF_PROCESSORS% --verbose
-      env:
-        CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5
-        CUDA_PATH_V11_5: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.5
+      run: cmake --build build --verbose
+
+    - name: Prepare for upload
+      run: |
+        mkdir artifact
+        copy build\*.dll artifact
+        mkdir cufft
+        copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\bin\cufft64_*.dll" cufft
 
     - name: Upload
       uses: actions/upload-artifact@v2
       with:
         name: VapourSynth-ILS-Windows-x64
-        path: build/Release/*.dll
+        path: build/*.dll
 
+    - name: Compress artifact for release
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.tag != ''
+      run: |
+        cd artifact
+
+        mkdir vs-ils-windows-${{ github.event.inputs.tag }}
+        xcopy ils.dll vs-ils-windows-${{ github.event.inputs.tag }} /f
+        7z a -t7z -mx=9 ../vs-ils-windows-${{ github.event.inputs.tag }}.7z vs-ils-windows-${{ github.event.inputs.tag }}
+        
+        cd ../cufft
+
+        mkdir vsmlrt-cuda
+        xcopy cufft64_*.dll vsmlrt-cuda /f
+        7z a -t7z -mx=9 ../cufft-windows-${{ github.event.inputs.tag }}.7z vsmlrt-cuda
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: github.event_name == 'workflow_dispatch' && github.event.inputs.tag != ''
+      with:
+        tag_name: ${{ github.event.inputs.tag }}
+        files: |
+          vs-ils-windows-${{ github.event.inputs.tag }}.7z
+          cufft-windows-${{ github.event.inputs.tag }}.7z
+        fail_on_unmatched_files: true
+        generate_release_notes: false
+        prerelease: true
