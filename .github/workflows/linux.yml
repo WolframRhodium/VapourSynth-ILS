@@ -1,6 +1,10 @@
 name: Build (Linux)
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    paths:
+      - 'source/*'
+      - '.github/workflows/windows.yml'
 
 jobs:
   build-linux:
