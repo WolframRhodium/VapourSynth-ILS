@@ -4,14 +4,14 @@ on:
   push:
     paths:
       - 'source/*'
-      - '.github/workflows/windows.yml'
+      - '.github/workflows/linux.yml'
 
 jobs:
   build-linux:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -20,12 +20,11 @@ jobs:
 
     - name: Setup CUDA
       run: |
-        wget -q https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
-        sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
-        sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
-        sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /"
+        wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb
+        sudo dpkg -i cuda-keyring_1.0-1_all.deb
+        sudo apt-get update
 
-        sudo apt-get install -y cuda-nvcc-11-7 cuda-cudart-dev-11-7 libcufft-dev-11-7
+        sudo apt-get install -y cuda-nvcc-11-8 cuda-cudart-dev-11-8 libcufft-dev-11-8
 
         echo "PATH=/usr/local/cuda/bin${PATH:+:${PATH}}" >> $GITHUB_ENV
         echo "CUDA_PATH=/usr/local/cuda" >> $GITHUB_ENV
@@ -42,13 +41,13 @@ jobs:
         -D VAPOURSYNTH_INCLUDE_DIRECTORY="`pwd`/vapoursynth/include"
         -D CMAKE_BUILD_TYPE=Release
         -D CMAKE_CUDA_FLAGS="--threads 0 --use_fast_math -Wno-deprecated-gpu-targets"
-        -D CMAKE_CUDA_ARCHITECTURES="50;61-real;75-real;86"
+        -D CMAKE_CUDA_ARCHITECTURES="50;61-real;75-real;86-real;89-real"
 
     - name: Build
       run: cmake --build build --config Release --verbose
 
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: VapourSynth-ILS-Linux
         path: build/lib*.so

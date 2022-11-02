@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Checkout repo
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
 
@@ -33,8 +33,8 @@ jobs:
 
     - name: Setup CUDA
       run: |
-        curl -s -o cuda_installer.exe -L https://developer.download.nvidia.com/compute/cuda/11.7.0/network_installers/cuda_11.7.0_windows_network.exe
-        cuda_installer.exe -s nvcc_11.7 cudart_11.7 cufft_11.7 cufft_dev_11.7
+        curl -s -o cuda_installer.exe -L https://developer.download.nvidia.com/compute/cuda/11.8.0/network_installers/cuda_11.8.0_windows_network.exe
+        cuda_installer.exe -s nvcc_11.8 cudart_11.8 cufft_11.8 cufft_dev_11.8
 
     - name: Download VapourSynth headers
       run: |
@@ -46,11 +46,10 @@ jobs:
       run: cmake -S . -B build -G Ninja -D CMAKE_BUILD_TYPE=Release
         -D VAPOURSYNTH_INCLUDE_DIRECTORY="%cd%\vapoursynth\include"
         -D CMAKE_CUDA_FLAGS="--threads 0 --use_fast_math --resource-usage -Wno-deprecated-gpu-targets"
-        -D CMAKE_CUDA_ARCHITECTURES="50;61-real;75-real;86"
+        -D CMAKE_CUDA_ARCHITECTURES="50;61-real;75-real;86-real;89-real"
         -D CMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded
       env:
-        CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7
-        CUDA_PATH_V11_7: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7
+        CUDA_PATH: C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8
 
     - name: Build
       run: cmake --build build --verbose
@@ -60,10 +59,10 @@ jobs:
         mkdir artifact
         copy build\*.dll artifact
         mkdir cufft
-        copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.7\bin\cufft64_*.dll" cufft
+        copy "C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.8\bin\cufft64_*.dll" cufft
 
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: VapourSynth-ILS-Windows-x64
         path: build/*.dll
