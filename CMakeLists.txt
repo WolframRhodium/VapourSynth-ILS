@@ -37,6 +37,6 @@ add_library(ils SHARED)
 target_link_libraries(ils vs_ils ils_impl CUDA::cudart_static CUDA::cufft)
 
 if (MSVC)
-    target_link_options(ils PRIVATE "/DELAYLOAD:cufft64_10.dll" "delayimp.lib")
+    target_link_options(ils PRIVATE "/DELAYLOAD:cufft64_12.dll" "delayimp.lib")
 endif()
 
