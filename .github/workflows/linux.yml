@@ -5,7 +5,7 @@ on:
     paths:
       - 'source/*'
       - '.github/workflows/linux.yml'
-
+      - 'CMakeLists.txt'
 jobs:
   build-linux:
     runs-on: ubuntu-24.04
