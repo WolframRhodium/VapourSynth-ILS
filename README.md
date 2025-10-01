@@ -8,11 +8,9 @@ It is a global optimization based edge-preserving smoothing filter, which can av
 
 ## Requirements
 
-- CUDA-enabled GPU(s) of [compute capability](https://developer.nvidia.com/cuda-gpus) 5.0 or higher (Maxwell+).
+- CUDA-enabled GPU(s).
 
-- GPU driver 450 or newer.
-
-- [cuFFT library](https://developer.nvidia.com/cufft), i.e. `cufft64_10.dll` on Windows or `libcufft.so.10` on Linux.
+- [cuFFT library](https://developer.nvidia.com/cufft), i.e. `cufft64_*.dll` on Windows or `libcufft.so.*` on Linux.
 
 
 ## Parameters
