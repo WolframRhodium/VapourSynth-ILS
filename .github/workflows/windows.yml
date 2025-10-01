@@ -5,6 +5,7 @@ on:
     paths:
       - 'source/*'
       - '.github/workflows/windows.yml'
+      - 'CMakeLists.txt'
   workflow_dispatch:
     inputs:
       tag:
